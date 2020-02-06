@@ -43,7 +43,12 @@ variable_list RecvRpcBackward::apply(variable_list&& grads) {
   if (auto sharedContext = autogradContext_.lock()) {
     sharedContext->addOutstandingRpc(futureMessage);
   } else {
-    C10_THROW_ERROR(Error, "Autograd context no longer valid");
+    C10_THROW_ERROR(
+        Error,
+        c10::str(
+            "Autograd context no longer valid! This usually ",
+            "means the autograd context was cleaned up by a different thread due ",
+            "to an error before RecvRcpBackward had a chance to run"));
   }
 
   // 'recv' function sends the gradients over the wire using RPC, it doesn't
